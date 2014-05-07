@@ -1,0 +1,69 @@
+modandov __ model and overlaying of histograms
+
+description
+The modandov function takes a dataset as input and returns a best fit of a linear regression model. It also visualizes the accuracy of a linear regression model (by comparing the actual values of the variable I am modeling and the predicted ones). To do that, it creates two histograms (one of the actual values of the dependent variable and the predicted ¬¬ones) that are overlayed, to facilitate comparison.
+how it works
+The function first plots all the column names of the dataset. The user then chooses out of these column names the variable they want to model and six possible explanatory variables. A model is considered good when it manages to best explain a variable using the least number of other variables. (lecture 7, adam dennet). I figured that six is a number of not-too-many / not-too-few variables to include in a model. My function then uses the function “ols” of the “rms” package to calculates a linear regression model using the method of ordinary least squares. It then goes on to perform a fast backward elimination of factors of the initial model, to check how well these factors explain the initial variable. To do that, it uses the function “fastbw” of the “rms” package, which uses a method based on Lawless and Singhal (1978). 
+After finding the best model, the function creates the two histograms mentioned before and it also prints the names of the variables kept in the final (best) model.
+Finaly, as an output, it produces a matrix that contains the variables kept and their coefficients. It also stores the indices of these variables in the initial dataset, for further correspondence.
+
+usage
+modandov(dataframe)
+
+arguments
+dataframe __It must be a dataframe that is correctly modified to be able to work with R, so it must have column names with no spaces. This dataframe is first loaded in an object. Then, this object is the input to the function. See example in the end.
+
+output values
+return __a matrix containing the coefficients of the best model and the indices in the initial dataframe of the variables that are kept in the best model
+modelbe.coefficients __the coefficients of the best model, the first is the intercept and the rest follow accordingly
+indices __the indices of the variables that are kept in the best model. The first one is the index of the dependent variable, the rest are of the explanatory, corresponding to the row names.
+example
+mydata<-read.csv(“MyDataFrame.csv”)
+modandov(mydata)		# prints the output
+resultofmodandov<-modandov(mydata) 	#assigns the output to object
+
+newvalue __calculation of the new values of the variable we want to change
+
+description
+The newvalue function takes as input the initial dataset, the result of the function modandov, the name of the variable we want to change and the factor of change. It takes all these factors and it produces a new matrix that contains the variables of the model multiplied by their coefficients. It also contains one last column with the values of the depended predicted variable, as it results when we multiply the variable we wish to change with the change-factor. To do that, it creates a new data frame that contains only the columns of the initial data frame with the explanatory variables, and one blank column that will include the final predicted variable. Then it multiplies the values of each row and column with the corresponding coefficient of the best model (the result of the modandov function). The variable we want to change is then multiplied by the factor of change. Finally the predicted depended variable is calculated by summing up all columns and adding the intercept.
+So, now, the user has a matrix of the values of the depended variable changed as wished.
+
+usage
+newvalue(dataframe, result_of_modandov, variable_changing, factor_of_change)
+
+arguments
+dataframe __It must be the dataframe used in the modandov function
+result_of_modandov __The result of the modandov function
+variable_changing __The name of the variable we want to change. It must be one of the variables kept in the final model, the result of modandov. It is put in quotes. See example in the end.
+factor_of_change __The factor we want to multiply by the variable we want to change. For example, if we want to lower the variable by 50%, the factor must be 0.5. If we want to double it, it must be 2.
+
+output Values
+ return __A matrix containing in the first n columns the variables multiplied by their coefficients, and the variable we are changing multiplied also by the factor of change. In the final row it contains the values of the predicted depended variable
+columns 1:n (n<=6) __The variables as explained above
+changed_prediction __The values of the depended variable as predicted when changes are made
+example
+newvalue(mydata, resultofmodandov, “ChangingVariable”, 0.8)	  #prints the output
+resultofnewvalue<- newvalue(mydata, resultofmodandov, “ChangingVariable”, 0.8)	#assigns the output to object 
+
+
+plots  __final plotting on a map of the actual, current values of the dependent variable and another map of the predicted values of the depended variable
+
+description
+The plots function takes as input the initial dataframe, the result of the modandov function, the result of the newvalue function, and a dataframe of outlines of the area corresponding to the initial dataframe. It has no output, it plots two maps and also saves them as a .png file. The first map show the actual values of the variable we created the model for. The second map shows the predicted values of the variable, after the changes are made to the chosen explanatory variable.
+
+usage
+plots(dataframe, result_of_newvalue, result_of_modandov, outline_dataframe)
+
+arguments
+dataframe It must be the dataframe used in the modandov function. It is assumed that this dataframe has two columns that contain spatial coordinates, either latitude and longitude, either any other mode of coordinates (such as Northings and Eastings) and are called “x” and “y” accordingly.
+result_of_newvalue The result of the newvalue function
+result_of_modandov The result of the modandov function
+outline_dataframe An outline dataframe. It must be a fortified shape file, so that it can be recognized and used by the ggplot function. See example in the end.
+
+output Values
+Nothing is returned in the program. This function produces two plots and also two .png files of the plots, saved in the working directory.
+
+example
+myarea<-readShapePoly(“MyArea.shp”)
+myareaoutline<-fortify(myarea, region = “NameOfEachBoundarySection”)
+plots(mydata, resultofnewvalue, resultofmodandov, myareaoutline)
