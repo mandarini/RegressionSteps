@@ -6,6 +6,8 @@ The three functions explained below work together to explore and present further
 This is part of my coursework in the module GIS and Science in the UCL Centre for Advanced Spatial Analysis (casa.ucl.ac.uk)
 Please read more on my blog: http://psybercity.co.uk/
 
+Also, to understand how the functions work, please read the file "functiondosumentationexplanation"
+
 Requirements
 R project (http://www.r-project.org/)
 R packages:
